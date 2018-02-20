@@ -10,7 +10,7 @@ import argparse
 from main import DKRConfig
 
 
-def main(config, only_remove_images=False):
+def main(config, remove_entrypoints=False):
     """
     Pull the docker images specified in the config
     option parsed to this function.
@@ -19,11 +19,11 @@ def main(config, only_remove_images=False):
 
     for key, value in config.items():
 
-        if only_remove_images:
+        if not remove_entrypoints:
             for version in value['versions']:
                 current_config.remove_entrypoint_version(key, version)
 
-        if not current_config.get_entrypoint(key).get('versions', None) or not only_remove_images:
+        if not current_config.get_entrypoint(key).get('versions', None) or remove_entrypoints:
             current_config.remove_entrypoint(key)
 
     current_config.write()
@@ -40,10 +40,10 @@ def parse_arguments(argv):
 
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument('-i',
-                        '--only_remove_images',
+    parser.add_argument('-e',
+                        '--remove_entrypoints',
                         action='store_true',
-                        help='Only remove the images passed into the config',
+                        help='Remove the entrypoint passed into the config, not just the images',
                         default=False,
                         required=False)
 
@@ -63,7 +63,7 @@ def run_main(args=sys.argv[1:]):
     raw = sys.stdin.read()
     config = ast.literal_eval(raw)
 
-    return main(config, args.only_remove_images)
+    return main(config, args.remove_entrypoints)
 
 
 if __name__ == '__main__':
