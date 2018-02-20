@@ -444,7 +444,7 @@ class DKRContainer:
     """
     DEFAULT_MAPPINGS = [os.getcwd(), HOME]
 
-    def __init__(self, image, invocation, auto_prepare=True):
+    def __init__(self, image, invocation, flags, auto_prepare=True):
         """
         Initialises a Command instance.
         """
@@ -455,6 +455,7 @@ class DKRContainer:
             self.image = self._prepare_image(image)
             self.volumes = self._prepare_volumes(invocation, *self.DEFAULT_MAPPINGS)
             self.invocation = self._prepare_invocation(invocation, self.volumes)
+            self.flags = flags
             self.environment = self._prepare_environment()
             self.working_directory = self._prepare_working_directory()
             self.user = self._prepare_user()
@@ -517,12 +518,12 @@ class DKRContainer:
         return container
 
     def execute_command(self):
-        rt = self._execute_command(self.container.id, self.invocation)
+        rt = self._execute_command(self.container.id, self.invocation, flags=self.flags)
 
         return rt
 
     @staticmethod
-    def _execute_command(container_id, invocation):
+    def _execute_command(container_id, invocation, flags=None):
         """
         Invokes a docker exec command via subprocess on the docker container with an id
         matching container_id.
@@ -531,7 +532,9 @@ class DKRContainer:
         :param invocation: array of arguments constituting the command to execute
         :return: subprocess command exit status
         """
-        command = ['docker', 'exec', '-i', container_id] + invocation
+        flags = flags or ['-i']
+
+        command = ['docker', 'exec'] + flags + [container_id] + invocation
         rt = subprocess.Popen(command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr).wait()
 
         return rt
@@ -640,7 +643,7 @@ class DKRContainer:
             return None
 
 
-def main(base, invocation, no_launch=False):
+def main(base, invocation, flags=None):
     """
     DKR Main function.
 
@@ -656,11 +659,8 @@ def main(base, invocation, no_launch=False):
     if image:
         invocation = [base] + invocation
 
-    command = DKRContainer(image or base, invocation)
-    
-    if no_launch:
-        return
-    
+    command = DKRContainer(image or base, invocation, flags=flags)
+
     container = command.launch_container()
     ACTIVE_CONTAINER = container
 
