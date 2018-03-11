@@ -92,7 +92,7 @@ def main(base, invocation, mode=None):
         if image:
             invocation = [base] + invocation
 
-        mode_mapping[mode](image, invocation)
+        mode_mapping[mode](image or base, invocation)
         return
 
     # By default, DKR will only log errors
