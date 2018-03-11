@@ -123,13 +123,24 @@ def set_image_tagged_version(image, version='latest'):
     return DOCKER_IMAGE_VERSION_DELIM.join([image, version])
 
 
-def filter_local_image_tags(client, tags):
-    """
+def match_to_image_tag(client, image):
+    image_tags = [tag for img in client.images.list() for tag in img.tags]
 
-    :param client:
-    :param tags:
-    :return:
-    """
+    for tag in image_tags:
+        if image is tag:
+            return tag
+
+    if '/' in image:
+        _, image = os.path.split(image)
+
+    for tag in image_tags:
+        if tag.endswith(image):
+            return tag
+
+    return None
+
+
+def filter_local_image_tags(client, tags):
     found_images = []
 
     for image in client.images.list():
@@ -148,7 +159,7 @@ def pull_docker_image(image):
             stdout=sys.stderr,
             stderr=sys.stderr).wait()
     except docker.errors.ImageNotFound:
-        logger.warning('Could not pull docker image, it might not exist.')
+        logger.warning('Could not pull docker image, please check the URI.')
 
 
 class DKRConfig:
@@ -598,10 +609,13 @@ class DKRContainer:
         if not get_image_tagged_version(image):
             image = set_image_tagged_version(image)
 
-        if not filter_local_image_tags(self.client, [image]):
-            pull_docker_image(image)
+        found_image = match_to_image_tag(self.client, image)
 
-        return image
+        if not found_image:
+            pull_docker_image(image)
+            return image
+
+        return found_image
 
     def _make_mapping(self, path):
         """
