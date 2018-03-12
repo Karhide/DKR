@@ -49,12 +49,12 @@ Total 2
 ```
 ### Run
 ```bash
-$ dkr minimap2 minimap2 -x map-ont -t 16 -a \
+$ dkr minimap2 -x map-ont -t 16 -a \
     GCA_000001405.15_GRCh38_genomic.fna.minimap2.idx reads.fastq > read_mapped.sam
 ```
 ### Piping
 ```bash
-$ dkr minimap2 minimap2 -x map-ont -t 16 -a \
+$ dkr minimap2 -x map-ont -t 16 -a \
     GCA_000001405.15_GRCh38_genomic.fna.minimap2.idx reads.fastq \
     | dkr samtools view -Sbh - > read_mapped.bam
 ```
