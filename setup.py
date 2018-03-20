@@ -22,5 +22,6 @@ setup(
         'dkr-add = dkr.add:run_main',
         'dkr-remove = dkr.remove:run_main',
         'dkr-pull = dkr.pull:run_main',
+        'dkr_comp = dkr.dkr_comp:run_main',
         'dkr-debug = dkr.debug:run_main']}
 )
