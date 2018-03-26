@@ -6,6 +6,7 @@ import signal
 import docker
 import logging
 import subprocess
+import time
 
 from tabulate import tabulate
 from docker.errors import APIError
@@ -68,9 +69,14 @@ def shutdown(container):
     main process and returning control to the user once they have sent SIGINT, whilst making
     sure the grand-child of the main process cleanly disposes of the docker container.
     """
+
+    # Piping in unix redirects channel/fd 1, if we fork, we will have double pipe communication
+    # at this point no more communication is needed, so we close the pipe (clannel 1) before forking.
+    os.close(1)
+
     try:
         pid = os.fork()
-        if pid > 0:
+        if pid:
             # exit first parent
             sys.exit(0)
 
@@ -83,10 +89,11 @@ def shutdown(container):
     os.setsid()
     os.umask(0)
 
+
     # do second fork
     try:
         pid = os.fork()
-        if pid > 0:
+        if pid:
             # exit from second parent
             sys.exit(0)
     except OSError as e:
@@ -98,6 +105,7 @@ def shutdown(container):
         container.remove()
     except APIError:
         pass
+
 
 
 def get_image_tagged_version(image):
@@ -547,6 +555,8 @@ class DKRContainer:
 
         command = ['docker', 'exec'] + flags + [container_id] + invocation
         rt = subprocess.Popen(command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr).wait()
+        sys.stdout.flush()
+        sys.stderr.flush()
 
         return rt
 
