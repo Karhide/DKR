@@ -1,6 +1,11 @@
 # A convenient interface to dockerised command line tools.
 
 ## Basic Install
+### Pip
+```bash
+$ pip install git+https://github.com/Karhide/DKR#egg=dkr
+```
+### Manual
 ```bash
 $ git clone https://github.com/Karhide/DKR
 $ cd dkr
