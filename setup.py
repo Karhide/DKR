@@ -12,7 +12,8 @@ setup(
         'docker',
         'requests',
         'tabulate',
-        'pyyaml'
+        'pyyaml',
+        'natsort'
     ],
     packages=[MODULE_NAME, MODULE_NAME + '/registries'],
     entry_points={"console_scripts": [
