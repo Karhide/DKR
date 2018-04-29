@@ -20,7 +20,13 @@ def main(config, remove_entrypoints=False):
     for key, value in config.items():
 
         if not remove_entrypoints:
-            for version in value['versions']:
+            versions = value.get('versions', [])
+
+            if len(versions) == 1:
+                print "Can't remove %s from %s, its the only assigned image." % (versions[0], key)
+                continue
+
+            for version in versions:
                 current_config.remove_entrypoint_version(key, version)
 
         if not current_config.get_entrypoint(key).get('versions', None) or remove_entrypoints:
@@ -36,7 +42,7 @@ def parse_arguments(argv):
     :param argv: command line arguments
     :return: parsed command-line arguments (argparse)
     """
-    description = 'Create and add items to your dkr config.'
+    description = 'Remove items from your dkr config.'
 
     parser = argparse.ArgumentParser(description=description)
 
