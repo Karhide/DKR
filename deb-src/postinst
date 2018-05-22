@@ -1,0 +1,4 @@
+#!/bin/sh
+touch /usr/bin/dkr
+rm /usr/bin/dkr
+ln -s /usr/share/python/dkr/bin/dkr /usr/bin/dkr
