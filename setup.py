@@ -1,7 +1,7 @@
 from setuptools import setup
 from dkr import __version__
 
-MODULE_NAME='dckr'
+MODULE_NAME='dkr'
 
 setup(
     name=MODULE_NAME,
